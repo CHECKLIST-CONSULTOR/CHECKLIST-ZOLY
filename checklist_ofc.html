@@ -5,125 +5,34 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Checklist de Processos Implantados</title>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f5f5f5;
-            margin: 0;
-            padding: 0;
-        }
+        body { font-family: Arial, sans-serif; background-color: #f5f5f5; margin: 0; padding: 0; }
+        header { background-color: #007bff; color: white; text-align: center; padding: 15px 0; }
+        h2 { color: #333; text-align: center; margin-top: 20px; }
+        .container { max-width: 900px; margin: 20px auto; padding: 20px; background-color: white; border-radius: 8px; box-shadow: 0 0 15px rgba(0, 0, 0, 0.1); }
+        
+        .dados-cliente { display: flex; flex-direction: column; gap: 10px; margin-bottom: 25px; text-align: left; }
+        .dados-cliente .linha { display: flex; gap: 20px; }
+        .dados-cliente label { font-weight: bold; color: #333; display: flex; flex-direction: column; flex: 1; }
+        .dados-cliente input { padding: 6px; border: 1px solid #aaa; border-radius: 4px; text-transform: uppercase; }
 
-        header {
-            background-color: #007bff;
-            color: white;
-            text-align: center;
-            padding: 15px 0;
-        }
+        .checklist { display: flex; flex-direction: column; gap: 15px; }
+        .checklist-item { display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #eee; padding-bottom: 5px; }
+        .checklist-item p { width: 40%; margin: 0; font-weight: bold; }
+        .checklist-item label { margin-right: 15px; font-size: 14px; }
+        .observacao { padding: 4px; border: 1px solid #ccc; border-radius: 4px; width: 150px; }
 
-        h2 {
-            color: #333;
-            text-align: center;
-            margin-top: 20px;
-        }
+        .signature { margin-top: 30px; }
+        .signature canvas { border: 1px solid #ccc; border-radius: 5px; width: 100%; height: 150px; background-color: #fff; cursor: crosshair; touch-action: none; }
+        
+        .button-group { text-align: center; margin-top: 20px; }
+        button { background-color: #007bff; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; font-size: 16px; transition: 0.3s; margin: 5px; }
+        button:hover { background-color: #0056b3; }
+        .btn-whatsapp { background-color: #25D366; }
+        .btn-whatsapp:hover { background-color: #128C7E; }
 
-        .container {
-            max-width: 900px;
-            margin: 20px auto;
-            padding: 20px;
-            background-color: white;
-            border-radius: 8px;
-            box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
-        }
-
-        /* NOVA ÁREA DE DADOS DO CLIENTE */
-        .dados-cliente {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-            margin-bottom: 25px;
-            text-align: left;
-        }
-
-        .dados-cliente label {
-            font-weight: bold;
-            color: #333;
-        }
-
-        .dados-cliente input {
-            width: 100%;
-            padding: 6px;
-            border: 1px solid #aaa;
-            border-radius: 4px;
-        }
-
-        .checklist {
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-        }
-
-        .checklist-item {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
-
-        .checklist-item p {
-            width: 40%;
-            margin: 0;
-            font-weight: bold;
-        }
-
-        .checklist-item label {
-            margin-right: 15px;
-        }
-
-        .signature {
-            margin-top: 30px;
-        }
-
-        .signature canvas {
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            width: 100%;
-            height: 150px;
-        }
-
-        .button-group {
-            text-align: center;
-            margin-top: 20px;
-        }
-
-        button {
-            background-color: #007bff;
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 16px;
-            transition: background-color 0.3s ease;
-        }
-
-        button:hover {
-            background-color: #0056b3;
-        }
-
-        a {
-            display: inline-block;
-            margin-top: 15px;
-            text-decoration: none;
-            color: #007bff;
-        }
-
-        a:hover {
-            text-decoration: underline;
-        }
-
-        /* GARANTIR QUE CAMPOS APAREÇAM NA IMPRESSÃO */
         @media print {
-            input {
-                border: 1px solid #000 !important;
-            }
+            .button-group, .btn-clear, a { display: none !important; }
+            input { border: 1px solid #000 !important; }
         }
     </style>
 </head>
@@ -135,8 +44,8 @@
     <div class="container">
         <h2>Checklist de Processos Oficina</h2>
 
-        <!-- CAMPOS TEXTO ADICIONADOS -->
-       <div class="dados-cliente">
+     <!-- CAMPOS DO CLIENTE -->
+        <div class="dados-cliente">
     <div class="linha">
         <label>Cliente:<br>
             <input type="text" id="cliente" placeholder="Nome do cliente" oninput="this.value = this.value.toUpperCase()">
@@ -158,11 +67,10 @@
     </div>
 
     <div class="linha">
-        <label>Consultor(a) Dealernet:<br>
-            <input type="text" id="Consultor(a) Dealernet" placeholder="Consultor(a) Dealernet" oninput="this.value = this.value.toUpperCase()">
-        </label>
-    </div>
+                <label>Consultor(a) Dealernet:<input type="text" id="responsavel" placeholder="Nome do Consultor" oninput="this.value = this.value.toUpperCase()"></label>
+            </div>
 </div>
+
 
 <script>
 function formatarCNPJ(campo) {
@@ -218,12 +126,15 @@ function formatarCNPJ(campo) {
         <div class="signature">
             <h3>Assinatura</h3>
             <canvas id="signatureCanvas"></canvas>
+            <div style="text-align: right;">
+                <button class="btn-clear" style="background:#666; font-size:12px; padding:5px 10px;" onclick="limparAssinatura()">Limpar Assinatura</button>
+            </div>
         </div>
 
         <div class="button-group">
             <button onclick="validarEImprimir()">Impressão Módulo Oficina</button>
             <br>
-            <a href="checklist1.html">Voltar para o Menu</a>
+            <a href="file:///C:\checklist\checklist1.html">Voltar para o MENU</a>
         </div>
     </div>
 
@@ -306,6 +217,45 @@ function formatarCNPJ(campo) {
                 `)
                 .join('');
         }
+// --- LÓGICA DA ASSINATURA CORRIGIDA ---
+        const canvas = document.getElementById('signatureCanvas');
+        const ctx = canvas.getContext('2d');
+        let desenhando = false;
+
+        function ajustarCanvas() {
+            canvas.width = canvas.offsetWidth;
+            canvas.height = canvas.offsetHeight;
+        }
+        window.onload = ajustarCanvas;
+
+        function getPos(e) {
+            const rect = canvas.getBoundingClientRect();
+            const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+            const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+            return { x: clientX - rect.left, y: clientY - rect.top };
+        }
+
+        canvas.addEventListener('mousedown', (e) => { desenhando = true; ctx.beginPath(); const p = getPos(e); ctx.moveTo(p.x, p.y); });
+        canvas.addEventListener('mousemove', (e) => { if (!desenhando) return; const p = getPos(e); ctx.lineTo(p.x, p.y); ctx.stroke(); });
+        canvas.addEventListener('mouseup', () => desenhando = false);
+        canvas.addEventListener('touchstart', (e) => { e.preventDefault(); desenhando = true; ctx.beginPath(); const p = getPos(e); ctx.moveTo(p.x, p.y); });
+        canvas.addEventListener('touchmove', (e) => { e.preventDefault(); if (!desenhando) return; const p = getPos(e); ctx.lineTo(p.x, p.y); ctx.stroke(); });
+        function limparAssinatura() { ctx.clearRect(0, 0, canvas.width, canvas.height); }
+        // --- FUNÇÕES DE ENVIO ---
+        function montarMensagem() {
+            let msg = `*CHECKLIST IMPLANTADO - VEÍCULOS USADOS*\n\n`;
+            msg += `*Cliente:* ${document.getElementById('cliente').value}\n`;
+            msg += `*Loja:* ${document.getElementById('loja').value}\n`;
+            msg += `*Consultor:* ${document.getElementById('responsavel').value}\n\n`;
+            msg += `*RESUMO DOS ITENS:*\n`;
+            
+            checklistItems.forEach(item => {
+                const opt = document.querySelector(`input[name="${item}"]:checked`);
+                const obs = document.getElementById(`obs_${item}`).value;
+                if(opt) msg += `- ${item}: *${opt.value}* ${obs ? '['+obs+']' : ''}\n`;
+            });
+            return encodeURIComponent(msg);
+        }
 
         function marcarTodas(valor) {
             checklistItems.forEach(item => {
@@ -334,5 +284,3 @@ function formatarCNPJ(campo) {
     </script>
 </body>
 </html>
-
-
