@@ -342,6 +342,7 @@ function formatarCNPJ(campo) {
             } else {
                 alert('Por favor, responda todas as perguntas antes de imprimir.');
             }
+            window.print();
         }
 
         document.querySelector('.checklist').innerHTML = generateChecklistItems();
