@@ -221,10 +221,14 @@ function formatarCNPJ(campo) {
             <button onclick="marcarTodas('naoSeAplica')">Marcar Todas Não se Aplica</button>
         </div>
 
-        <div class="signature">
-            <h3>Assinatura</h3>
-            <canvas id="signatureCanvas"></canvas>
-        </div>
+        <<div class="signature">
+    <h3>Assinatura</h3>
+    <!-- O canvas é a área onde o desenho acontece -->
+    <canvas id="signatureCanvas" width="860" height="150" style="border: 1px solid #ccc; border-radius: 5px; width: 100%; height: 150px; cursor: crosshair;"></canvas>
+    
+    <!-- O botão para limpar, caso o usuário erre -->
+    <button type="button" onclick="limparAssinatura()" style="background-color: #dc3545; color: white; border: none; padding: 8px 15px; border-radius: 5px; margin-top: 10px; cursor: pointer;">Limpar Assinatura</button>
+</div>
 
         <div class="button-group">
             <button onclick="validarEImprimir()">Impressão Módulo Tesouraria</button>
@@ -295,6 +299,39 @@ function formatarCNPJ(campo) {
 
         document.querySelector('.checklist').innerHTML = generateChecklistItems();
     </script>
+    // --- LÓGICA DA ASSINATURA ---
+const canvas = document.getElementById('signatureCanvas');
+const ctx = canvas.getContext('2d');
+let desenhando = false;
+
+// Estilo do traço
+ctx.strokeStyle = '#000';
+ctx.lineWidth = 2;
+ctx.lineJoin = 'round';
+
+// Função para pegar a posição exata do mouse ou toque
+function getPos(e) {
+    const rect = canvas.getBoundingClientRect();
+    const clientX = e.clientX || (e.touches ? e.touches[0].clientX : 0);
+    const clientY = e.clientY || (e.touches ? e.touches[0].clientY : 0);
+    return { x: clientX - rect.left, y: clientY - rect.top };
+}
+
+// Eventos para Mouse
+canvas.addEventListener('mousedown', (e) => { desenhando = true; ctx.beginPath(); ctx.moveTo(getPos(e).x, getPos(e).y); });
+canvas.addEventListener('mousemove', (e) => { if (desenhando) { ctx.lineTo(getPos(e).x, getPos(e).y); ctx.stroke(); } });
+canvas.addEventListener('mouseup', () => desenhando = false);
+canvas.addEventListener('mouseleave', () => desenhando = false);
+
+// Eventos para Celular/Tablet (Touch)
+canvas.addEventListener('touchstart', (e) => { e.preventDefault(); desenhando = true; ctx.beginPath(); ctx.moveTo(getPos(e).x, getPos(e).y); }, {passive: false});
+canvas.addEventListener('touchmove', (e) => { e.preventDefault(); if (desenhando) { ctx.lineTo(getPos(e).x, getPos(e).y); ctx.stroke(); } }, {passive: false});
+canvas.addEventListener('touchend', () => desenhando = false);
+
+// Função de limpar
+function limparAssinatura() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+}
 </body>
 </html>
 
