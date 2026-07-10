@@ -321,7 +321,10 @@ function formatarCNPJ(campo) {
                 </div>
             `).join('');
         }
-
+// --- LÓGICA DA ASSINATURA CORRIGIDA ---
+        const canvas = document.getElementById('signatureCanvas');
+        const ctx = canvas.getContext('2d');
+        let desenhando = false;
         function marcarTodas(valor) {
             checklistItems.forEach(item => {
                 const radios = document.getElementsByName(item);
