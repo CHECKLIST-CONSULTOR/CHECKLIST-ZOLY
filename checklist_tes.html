@@ -3,49 +3,74 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Checklist de Processos Implantados</title>
+    <title>Checklist de Processos Implantados - Tesouraria</title>
     <style>
         body { font-family: Arial, sans-serif; background-color: #f5f5f5; margin: 0; padding: 0; }
         header { background-color: #007bff; color: white; text-align: center; padding: 15px 0; }
         h2 { color: #333; text-align: center; margin-top: 20px; }
         .container { max-width: 900px; margin: 20px auto; padding: 20px; background-color: white; border-radius: 8px; box-shadow: 0 0 15px rgba(0, 0, 0, 0.1); }
-        .dados-cliente { display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px; }
-        .linha { display: flex; gap: 20px; }
-        .dados-cliente label { display: flex; flex-direction: column; font-weight: bold; }
-        .dados-cliente input { padding: 8px; border: 1px solid #ccc; border-radius: 4px; text-transform: uppercase; }
+        
+        .dados-cliente { display: flex; flex-direction: column; gap: 10px; margin-bottom: 25px; text-align: left; }
+        .dados-cliente .linha { display: flex; gap: 20px; }
+        .dados-cliente label { font-weight: bold; color: #333; display: flex; flex-direction: column; flex: 1; }
+        .dados-cliente input { padding: 6px; border: 1px solid #aaa; border-radius: 4px; text-transform: uppercase; }
+
         .checklist { display: flex; flex-direction: column; gap: 15px; }
-        .checklist-item { display: flex; align-items: center; justify-content: space-between; }
+        .checklist-item { display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #eee; padding-bottom: 5px; }
         .checklist-item p { width: 40%; margin: 0; font-weight: bold; }
+        .checklist-item label { margin-right: 15px; font-size: 14px; }
+        .observacao { padding: 4px; border: 1px solid #ccc; border-radius: 4px; width: 150px; }
+
         .signature { margin-top: 30px; }
-        .signature canvas { border: 1px solid #ccc; border-radius: 5px; width: 100%; height: 150px; cursor: crosshair; }
+        .signature canvas { border: 1px solid #ccc; border-radius: 5px; width: 100%; height: 150px; background-color: #fff; cursor: crosshair; touch-action: none; }
+        
+        /* Estilos da Foto */
+        .foto-container { margin-top: 20px; padding: 15px; border: 1px solid #eee; border-radius: 5px; display: flex; align-items: center; gap: 20px; flex-wrap: wrap; }
+        #video { width: 150px; height: 150px; background: #eee; border-radius: 5px; object-fit: cover; }
+        #fotoCapturada { width: 150px; height: 150px; border: 1px solid #ccc; border-radius: 5px; object-fit: cover; }
+        
         .button-group { text-align: center; margin-top: 20px; }
-        button { background-color: #007bff; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; font-size: 16px; }
+        button { background-color: #007bff; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; font-size: 16px; transition: 0.3s; margin: 5px; }
         button:hover { background-color: #0056b3; }
-        a { display: inline-block; margin-top: 15px; text-decoration: none; color: #007bff; }
-        @media print { button, a { display: none !important; } }
+        
+        @media print {
+            .button-group, .btn-clear, a, .btn-foto, #video { display: none !important; }
+            input { border: 1px solid #000 !important; }
+        }
     </style>
 </head>
 <body>
-    <header>
-        <h1>Checklist de Processos Implantados Tesouraria</h1>
-    </header>
+    <header><h1>Checklist de Processos Implantados Tesouraria</h1></header>
 
     <div class="container">
         <h2>Checklist de Processos Tesouraria</h2>
 
         <div class="dados-cliente">
             <div class="linha">
-                <label>Cliente:<br><input type="text" id="cliente" oninput="this.value = this.value.toUpperCase()"></label>
+                <label>Cliente:<br><input type="text" id="cliente" placeholder="Nome do cliente" oninput="this.value = this.value.toUpperCase()"></label>
                 <label>CNPJ:<br><input type="text" id="cnpj" placeholder="00.000.000/0000-00" oninput="formatarCNPJ(this)"></label>
             </div>
             <div class="linha">
-                <label>Loja:<br><input type="text" id="loja" oninput="this.value = this.value.toUpperCase()"></label>
-                <label>Ponto Focal:<br><input type="text" id="ponto" oninput="this.value = this.value.toUpperCase()"></label>
+                <label>Loja:<br><input type="text" id="loja" placeholder="Loja" oninput="this.value = this.value.toUpperCase()"></label>
+                <label>Ponto Focal:<br><input type="text" id="ponto" placeholder="Ponto Focal" oninput="this.value = this.value.toUpperCase()"></label>
             </div>
-            <label>Consultor(a) Dealernet:<br><input type="text" id="responsavel" oninput="this.value = this.value.toUpperCase()"></label>
+            <div class="linha">
+                <label>Consultor(a) Dealernet:<br><input type="text" id="responsavel" placeholder="Nome do responsável" oninput="this.value = this.value.toUpperCase()"></label>
+            </div>
         </div>
 
-        <div class="checklist" id="areaChecklist"></div>
+        <div class="checklist"></div>
+
+        <!-- Inclusão da Câmera -->
+        <div class="foto-container">
+            <div>
+                <video id="video" autoplay playsinline></video><br>
+                <button type="button" class="btn-foto" onclick="ligarCamera()">Ligar Câmera</button>
+                <button type="button" class="btn-foto" onclick="tirarFoto()">Capturar Foto</button>
+            </div>
+            <img id="fotoCapturada" alt="Foto">
+            <canvas id="canvasFoto" width="300" height="300" style="display:none;"></canvas>
+        </div>
 
         <div class="button-group">
             <button onclick="marcarTodas('sim')">Marcar Todas Sim</button>
@@ -55,14 +80,16 @@
 
         <div class="signature">
             <h3>Assinatura</h3>
-            <canvas id="signatureCanvas" width="860" height="150"></canvas>
-            <button type="button" onclick="limparAssinatura()" style="background-color: #dc3545; margin-top: 10px;">Limpar Assinatura</button>
+            <canvas id="signatureCanvas"></canvas>
+            <div style="text-align: right;">
+                <button class="btn-clear" style="background:#666; font-size:12px; padding:5px 10px;" onclick="limparAssinatura()">Limpar Assinatura</button>
+            </div>
         </div>
 
         <div class="button-group">
             <button onclick="validarEImprimir()">Impressão Módulo Tesouraria</button>
             <br>
-            <a href="checklist1.html">Voltar para o Menu</a>
+            <a href="checklist1.html">Voltar para o MENU</a>
         </div>
     </div>
 
@@ -70,70 +97,43 @@
         const checklistItems = [
             "Cadastro de Talões de Cheque", "Fechamento de Caixa", "Lançamentos",
             "Conciliação de Lançamentos (Caixa/Banco)", "Emitir Recibo (*)", "Negociação",
-            "Importar Extrato de Conta", "Preparar / Emitir (Cheque/Borderô)",
-            "Impressão de Extrato de Conta", "SITEF Implantado", "Relatórios",
-            "FLUXO - Preparar Pagamento (PagTransf) - Autorizar", "FLUXO - Preparar Pagamento (PagTransf) - Dar Ciência",
-            "FLUXO - Preparar Pagamento (PagTransf) - Emitir", "FLUXO - Preparar Pagamento (PagTransf) - Confirmar",
-            "FLUXO - Preparar Pagamento (PagTransf) - importar Retorno", "FLUXO - Negociação - Autorizar",
-            "FLUXO - Negociação - Confirmar", "FLUXO - Recebimento no caixa - Receber Pagamento",
-            "FLUXO - Emitir Recibo (*) - Emitir Recibo (*)", "FLUXO - Emitir Recibo (*) - Autorizar",
-            "FLUXO - Emitir Recibo (*) - Imprimir"
+            "Importar Extrato de Conta", "Preparar / Emitir (Cheque/Borderô)", "Impressão de Extrato de Conta",
+            "SITEF Implantado", "Relatórios", "FLUXO - Preparar Pagamento (PagTransf) - Autorizar",
+            "FLUXO - Preparar Pagamento (PagTransf) - Dar Ciência", "FLUXO - Preparar Pagamento (PagTransf) - Emitir",
+            "FLUXO - Preparar Pagamento (PagTransf) - Confirmar", "FLUXO - Preparar Pagamento (PagTransf) - importar Retorno",
+            "FLUXO - Negociação - Autorizar", "FLUXO - Negociação - Confirmar", "FLUXO - Recebimento no caixa - Receber Pagamento",
+            "FLUXO - Emitir Recibo (*) - Emitir Recibo (*)", "FLUXO - Emitir Recibo (*) - Autorizar", "FLUXO - Emitir Recibo (*) - Imprimir"
         ];
 
-        function formatarCNPJ(campo) {
-            let cnpj = campo.value.replace(/\D/g, "");
-            if (cnpj.length > 14) cnpj = cnpj.substring(0, 14);
-            campo.value = cnpj.replace(/^(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})$/, "$1.$2.$3/$4-$5");
-        }
+        document.querySelector('.checklist').innerHTML = checklistItems.map(item => `
+            <div class="checklist-item">
+                <p>${item}</p>
+                <label><input type="radio" name="${item}" value="sim"> Sim</label>
+                <label><input type="radio" name="${item}" value="nao"> Não</label>
+                <label><input type="radio" name="${item}" value="naoSeAplica"> Não se aplica</label>
+                <input type="text" class="observacao" id="obs_${item}" placeholder="Observação">
+            </div>
+        `).join('');
 
-        function generateChecklistItems() {
-            return checklistItems.map(item => `
-                <div class="checklist-item">
-                    <p>${item}</p>
-                    <label><input type="radio" name="${item}" value="sim"> Sim</label>
-                    <label><input type="radio" name="${item}" value="nao"> Não</label>
-                    <label><input type="radio" name="${item}" value="naoSeAplica"> N/A</label>
-                    <input type="text" placeholder="Obs">
-                </div>
-            `).join('');
-        }
+        // Funções Câmera
+        async function ligarCamera() { try { const stream = await navigator.mediaDevices.getUserMedia({ video: true }); document.getElementById('video').srcObject = stream; } catch(err) { alert("Erro ao acessar câmera: " + err); } }
+        function tirarFoto() { const v = document.getElementById('video'); const c = document.getElementById('canvasFoto'); const ctx = c.getContext('2d'); ctx.drawImage(v, 0, 0, 300, 300); document.getElementById('fotoCapturada').src = c.toDataURL('image/png'); }
 
-        document.getElementById('areaChecklist').innerHTML = generateChecklistItems();
-
-        function marcarTodas(valor) {
-            checklistItems.forEach(item => {
-                document.getElementsByName(item).forEach(r => r.checked = r.value === valor);
-            });
-        }
-
-        function validarEImprimir() {
-            if (checklistItems.every(item => Array.from(document.getElementsByName(item)).some(r => r.checked))) {
-                window.print();
-            } else { alert('Responda todas as perguntas!'); }
-        }
-
-        // LÓGICA DA ASSINATURA
-        const canvas = document.getElementById('signatureCanvas');
-        const ctx = canvas.getContext('2d');
-        let desenhando = false;
-        ctx.strokeStyle = '#000'; ctx.lineWidth = 2; ctx.lineJoin = 'round';
-
-        function getPos(e) {
-            const rect = canvas.getBoundingClientRect();
-            const clientX = e.clientX || (e.touches ? e.touches[0].clientX : 0);
-            const clientY = e.clientY || (e.touches ? e.touches[0].clientY : 0);
-            return { x: clientX - rect.left, y: clientY - rect.top };
-        }
-
-        canvas.addEventListener('mousedown', (e) => { desenhando = true; ctx.beginPath(); ctx.moveTo(getPos(e).x, getPos(e).y); });
-        canvas.addEventListener('mousemove', (e) => { if (desenhando) { ctx.lineTo(getPos(e).x, getPos(e).y); ctx.stroke(); } });
+        // Assinatura e Gerais
+        const canvas = document.getElementById('signatureCanvas'); const ctx = canvas.getContext('2d'); let desenhando = false;
+        function ajustarCanvas() { canvas.width = canvas.offsetWidth; canvas.height = canvas.offsetHeight; }
+        window.onload = ajustarCanvas;
+        function getPos(e) { const rect = canvas.getBoundingClientRect(); const clientX = e.touches ? e.touches[0].clientX : e.clientX; const clientY = e.touches ? e.touches[0].clientY : e.clientY; return { x: clientX - rect.left, y: clientY - rect.top }; }
+        canvas.addEventListener('mousedown', (e) => { desenhando = true; ctx.beginPath(); const p = getPos(e); ctx.moveTo(p.x, p.y); });
+        canvas.addEventListener('mousemove', (e) => { if (!desenhando) return; const p = getPos(e); ctx.lineTo(p.x, p.y); ctx.stroke(); });
         canvas.addEventListener('mouseup', () => desenhando = false);
-        canvas.addEventListener('mouseleave', () => desenhando = false);
-        canvas.addEventListener('touchstart', (e) => { e.preventDefault(); desenhando = true; ctx.beginPath(); ctx.moveTo(getPos(e).x, getPos(e).y); }, {passive: false});
-        canvas.addEventListener('touchmove', (e) => { e.preventDefault(); if (desenhando) { ctx.lineTo(getPos(e).x, getPos(e).y); ctx.stroke(); } }, {passive: false});
-        canvas.addEventListener('touchend', () => desenhando = false);
-
+        canvas.addEventListener('touchstart', (e) => { e.preventDefault(); desenhando = true; ctx.beginPath(); const p = getPos(e); ctx.moveTo(p.x, p.y); });
+        canvas.addEventListener('touchmove', (e) => { e.preventDefault(); if (!desenhando) return; const p = getPos(e); ctx.lineTo(p.x, p.y); ctx.stroke(); });
         function limparAssinatura() { ctx.clearRect(0, 0, canvas.width, canvas.height); }
+
+        function formatarCNPJ(c) { let cnpj = c.value.replace(/\D/g, ""); if (cnpj.length > 14) cnpj = cnpj.substring(0, 14); c.value = cnpj.replace(/^(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})$/, "$1.$2.$3/$4-$5"); }
+        function marcarTodas(valor) { checklistItems.forEach(item => { document.getElementsByName(item).forEach(r => { if(r.value === valor) r.checked = true; }); }); }
+        function validarEImprimir() { if (checklistItems.every(item => Array.from(document.getElementsByName(item)).some(r => r.checked))) { window.print(); } else { alert("Responda todos os itens."); } }
     </script>
 </body>
 </html>

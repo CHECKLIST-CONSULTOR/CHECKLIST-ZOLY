@@ -24,97 +24,52 @@
         .signature { margin-top: 30px; }
         .signature canvas { border: 1px solid #ccc; border-radius: 5px; width: 100%; height: 150px; background-color: #fff; cursor: crosshair; touch-action: none; }
         
+        /* Estilos da Câmera */
+        .foto-container { margin-top: 20px; padding: 15px; border: 1px solid #eee; border-radius: 5px; display: flex; align-items: center; gap: 20px; flex-wrap: wrap; }
+        #video { width: 150px; height: 150px; background: #eee; border-radius: 5px; object-fit: cover; }
+        #fotoCapturada { width: 150px; height: 150px; border: 1px solid #ccc; border-radius: 5px; object-fit: cover; }
+        
         .button-group { text-align: center; margin-top: 20px; }
         button { background-color: #007bff; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; font-size: 16px; transition: 0.3s; margin: 5px; }
         button:hover { background-color: #0056b3; }
-        .btn-whatsapp { background-color: #25D366; }
-        .btn-whatsapp:hover { background-color: #128C7E; }
-
+        
         @media print {
-            .button-group, .btn-clear, a { display: none !important; }
+            .button-group, .btn-clear, a, .btn-foto, #video { display: none !important; }
             input { border: 1px solid #000 !important; }
         }
     </style>
 </head>
 <body>
-    <header>
-        <h1>Checklist de Processos Implantados Escrita Fiscal</h1>
-    </header>
+    <header><h1>Checklist de Processos Implantados Escrita Fiscal</h1></header>
 
     <div class="container">
         <h2>Checklist de Processos Escrita Fiscal</h2>
 
-     <!-- CAMPOS DO CLIENTE -->
         <div class="dados-cliente">
-    <div class="linha">
-        <label>Cliente:<br>
-            <input type="text" id="cliente" placeholder="Nome do cliente" oninput="this.value = this.value.toUpperCase()">
-        </label>
-
-        <label>CNPJ:<br>
-            <input type="text" id="cnpj" placeholder="00.000.000/0000-00" oninput="formatarCNPJ(this)">
-        </label>
-    </div>
-
-    <div class="linha">
-        <label>Loja:<br>
-            <input type="text" id="loja" placeholder="Loja" oninput="this.value = this.value.toUpperCase()">
-        </label>
-
-        <label>Ponto Focal:<br>
-            <input type="text" id="ponto" placeholder="Ponto Focal" oninput="this.value = this.value.toUpperCase()">
-        </label>
-    </div>
-
-    <div class="linha">
+            <div class="linha">
+                <label>Cliente:<br><input type="text" id="cliente" placeholder="Nome do cliente" oninput="this.value = this.value.toUpperCase()"></label>
+                <label>CNPJ:<br><input type="text" id="cnpj" placeholder="00.000.000/0000-00" oninput="formatarCNPJ(this)"></label>
+            </div>
+            <div class="linha">
+                <label>Loja:<br><input type="text" id="loja" placeholder="Loja" oninput="this.value = this.value.toUpperCase()"></label>
+                <label>Ponto Focal:<br><input type="text" id="ponto" placeholder="Ponto Focal" oninput="this.value = this.value.toUpperCase()"></label>
+            </div>
+            <div class="linha">
                 <label>Consultor(a) Dealernet:<input type="text" id="responsavel" placeholder="Nome do Consultor" oninput="this.value = this.value.toUpperCase()"></label>
             </div>
-</div>
+        </div>
 
+        <div class="checklist"></div>
 
-<script>
-function formatarCNPJ(campo) {
-    let cnpj = campo.value.replace(/\D/g, "");
-    if (cnpj.length > 14) cnpj = cnpj.substring(0, 14);
-
-    campo.value = cnpj.replace(
-        /^(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})$/,
-        "$1.$2.$3/$4-$5"
-    );
-}
-</script>
-
-<style>
-.dados-cliente {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    font-family: Arial, sans-serif;
-}
-
-.dados-cliente .linha {
-    display: flex;
-    gap: 20px;
-}
-
-.dados-cliente label {
-    display: flex;
-    flex-direction: column;
-    font-weight: bold;
-}
-
-.dados-cliente input {
-    padding: 5px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    text-transform: uppercase; /* visualmente em maiúsculas */
-}
-</style>
-
-
-        <div class="checklist">
-            <!-- Gerado dinamicamente -->
-            ${generateChecklistItems()}
+        <!-- Inclusão da Câmera -->
+        <div class="foto-container">
+            <div>
+                <video id="video" autoplay playsinline></video><br>
+                <button type="button" class="btn-foto" onclick="ligarCamera()">Ligar Câmera</button>
+                <button type="button" class="btn-foto" onclick="tirarFoto()">Capturar Foto</button>
+            </div>
+            <img id="fotoCapturada" alt="Foto">
+            <canvas id="canvasFoto" width="300" height="300" style="display:none;"></canvas>
         </div>
 
         <div class="button-group">
@@ -132,7 +87,7 @@ function formatarCNPJ(campo) {
         </div>
 
         <div class="button-group">
-            <button onclick="validarEImprimir()">Impressão Módulo Produtos</button>
+            <button onclick="validarEImprimir()">Impressão Módulo Escrita Fiscal</button>
             <br>
             <a href="checklist1.html">Voltar para o Menu</a>
         </div>
@@ -140,101 +95,43 @@ function formatarCNPJ(campo) {
 
     <script>
         const checklistItems = [
-"Cadastro de fornecedores",
-    "Cadastro de Observações fiscais",
-    "Ajuste de apuração",
-    "Escrituração Saldo credor/devedor",
-    "Verificar Escrituração do Registro de Entrada (*)",
-    "Verificar Escrituração do Registro de Saída (*)",
-    "Exportação Estaduais",
-    "Exportação Municipais",
-    "Exportação Federais",
-    "Relatórios Estaduais",
-    "Relatórios Municipais",
-    "Relatórios Federais",
-    "FLUXO - Cancela Nota Fiscal - Receber Produto",
-    "FLUXO - Cancela Nota Fiscal - Autorizar cancelamento de NF",
-    "Orientar o processo de envio do EFD-Reinf. <a href='http://sped.rfb.gov.br/pagina/show/1494' target='_blank'>Link EFDReinf</a>",
-    "FLUXO - Cancela Nota Fiscal - Cancelar NF"
+            "Cadastro de fornecedores", "Cadastro de Observações fiscais", "Ajuste de apuração",
+            "Escrituração Saldo credor/devedor", "Verificar Escrituração do Registro de Entrada (*)",
+            "Verificar Escrituração do Registro de Saída (*)", "Exportação Estaduais", "Exportação Municipais",
+            "Exportação Federais", "Relatórios Estaduais", "Relatórios Municipais", "Relatórios Federais",
+            "FLUXO - Cancela Nota Fiscal - Receber Produto", "FLUXO - Cancela Nota Fiscal - Autorizar cancelamento de NF",
+            "Orientar o processo de envio do EFD-Reinf", "FLUXO - Cancela Nota Fiscal - Cancelar NF"
         ];
 
-        function generateChecklistItems() {
-            return checklistItems
-                .map(item => `
-                    <div class="checklist-item">
-                        <p>${item}</p>
-                        <label><input type="radio" name="${item}" value="sim"> Sim</label>
-                        <label><input type="radio" name="${item}" value="nao"> Não</label>
-                        <label><input type="radio" name="${item}" value="naoSeAplica"> Não se aplica</label>
-                        <input type="text" class="observacao" placeholder="Observação">
-                    </div>
-                `)
-                .join('');
-        }
-// --- LÓGICA DA ASSINATURA CORRIGIDA ---
-        const canvas = document.getElementById('signatureCanvas');
-        const ctx = canvas.getContext('2d');
-        let desenhando = false;
+        document.querySelector('.checklist').innerHTML = checklistItems.map(item => `
+            <div class="checklist-item">
+                <p>${item}</p>
+                <label><input type="radio" name="${item}" value="sim"> Sim</label>
+                <label><input type="radio" name="${item}" value="nao"> Não</label>
+                <label><input type="radio" name="${item}" value="naoSeAplica"> Não se aplica</label>
+                <input type="text" class="observacao" id="obs_${item}" placeholder="Observação">
+            </div>
+        `).join('');
 
-        function ajustarCanvas() {
-            canvas.width = canvas.offsetWidth;
-            canvas.height = canvas.offsetHeight;
-        }
+        // Funções Câmera
+        async function ligarCamera() { try { const stream = await navigator.mediaDevices.getUserMedia({ video: true }); document.getElementById('video').srcObject = stream; } catch(err) { alert("Erro ao acessar câmera: " + err); } }
+        function tirarFoto() { const v = document.getElementById('video'); const c = document.getElementById('canvasFoto'); const ctx = c.getContext('2d'); ctx.drawImage(v, 0, 0, 300, 300); document.getElementById('fotoCapturada').src = c.toDataURL('image/png'); }
+
+        // Assinatura e Gerais
+        const canvas = document.getElementById('signatureCanvas'); const ctx = canvas.getContext('2d'); let desenhando = false;
+        function ajustarCanvas() { canvas.width = canvas.offsetWidth; canvas.height = canvas.offsetHeight; }
         window.onload = ajustarCanvas;
-
-        function getPos(e) {
-            const rect = canvas.getBoundingClientRect();
-            const clientX = e.touches ? e.touches[0].clientX : e.clientX;
-            const clientY = e.touches ? e.touches[0].clientY : e.clientY;
-            return { x: clientX - rect.left, y: clientY - rect.top };
-        }
-
+        function getPos(e) { const rect = canvas.getBoundingClientRect(); const clientX = e.touches ? e.touches[0].clientX : e.clientX; const clientY = e.touches ? e.touches[0].clientY : e.clientY; return { x: clientX - rect.left, y: clientY - rect.top }; }
         canvas.addEventListener('mousedown', (e) => { desenhando = true; ctx.beginPath(); const p = getPos(e); ctx.moveTo(p.x, p.y); });
         canvas.addEventListener('mousemove', (e) => { if (!desenhando) return; const p = getPos(e); ctx.lineTo(p.x, p.y); ctx.stroke(); });
         canvas.addEventListener('mouseup', () => desenhando = false);
         canvas.addEventListener('touchstart', (e) => { e.preventDefault(); desenhando = true; ctx.beginPath(); const p = getPos(e); ctx.moveTo(p.x, p.y); });
         canvas.addEventListener('touchmove', (e) => { e.preventDefault(); if (!desenhando) return; const p = getPos(e); ctx.lineTo(p.x, p.y); ctx.stroke(); });
         function limparAssinatura() { ctx.clearRect(0, 0, canvas.width, canvas.height); }
-        // --- FUNÇÕES DE ENVIO ---
-        function montarMensagem() {
-            let msg = `*CHECKLIST IMPLANTADO - VEÍCULOS USADOS*\n\n`;
-            msg += `*Cliente:* ${document.getElementById('cliente').value}\n`;
-            msg += `*Loja:* ${document.getElementById('loja').value}\n`;
-            msg += `*Consultor:* ${document.getElementById('responsavel').value}\n\n`;
-            msg += `*RESUMO DOS ITENS:*\n`;
-            
-            checklistItems.forEach(item => {
-                const opt = document.querySelector(`input[name="${item}"]:checked`);
-                const obs = document.getElementById(`obs_${item}`).value;
-                if(opt) msg += `- ${item}: *${opt.value}* ${obs ? '['+obs+']' : ''}\n`;
-            });
-            return encodeURIComponent(msg);
-        }
 
-        function marcarTodas(valor) {
-            checklistItems.forEach(item => {
-                const radios = document.getElementsByName(item);
-                radios.forEach(radio => {
-                    radio.checked = radio.value === valor;
-                });
-            });
-        }
-
-        function validarEImprimir() {
-            const allAnswered = checklistItems.every(item => {
-                const radios = document.getElementsByName(item);
-                return Array.from(radios).some(r => r.checked);
-            });
-
-            if (!allAnswered) {
-                alert("Por favor, responda todas as perguntas antes de imprimir.");
-                return;
-            }
-
-            window.print();
-        }
-
-        document.querySelector('.checklist').innerHTML = generateChecklistItems();
+        function formatarCNPJ(c) { let cnpj = c.value.replace(/\D/g, ""); if (cnpj.length > 14) cnpj = cnpj.substring(0, 14); c.value = cnpj.replace(/^(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})$/, "$1.$2.$3/$4-$5"); }
+        function marcarTodas(valor) { checklistItems.forEach(item => { document.getElementsByName(item).forEach(r => { if(r.value === valor) r.checked = true; }); }); }
+        function validarEImprimir() { if (checklistItems.every(item => Array.from(document.getElementsByName(item)).some(r => r.checked))) { window.print(); } else { alert("Responda todos os itens."); } }
     </script>
 </body>
 </html>

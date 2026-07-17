@@ -8,30 +8,40 @@
         body { font-family: Arial, sans-serif; background-color: #f5f5f5; margin: 0; padding: 0; }
         header { background-color: #007bff; color: white; text-align: center; padding: 15px 0; }
         h2 { color: #333; text-align: center; margin-top: 20px; }
-        .container { max-width: 900px; margin: 20px auto; padding: 20px; background-color: white; border-radius: 8px; box-shadow: 0 0 15px rgba(0,0,0,0.1); }
-        .dados-cliente { display: flex; flex-direction: column; gap: 10px; margin-bottom: 25px; font-family: Arial, sans-serif; }
+        .container { max-width: 900px; margin: 20px auto; padding: 20px; background-color: white; border-radius: 8px; box-shadow: 0 0 15px rgba(0, 0, 0, 0.1); }
+        
+        .dados-cliente { display: flex; flex-direction: column; gap: 10px; margin-bottom: 25px; text-align: left; }
         .dados-cliente .linha { display: flex; gap: 20px; }
-        .dados-cliente label { display: flex; flex-direction: column; font-weight: bold; color: #333; }
-        .dados-cliente input { width: 100%; padding: 6px; border: 1px solid #aaa; border-radius: 4px; text-transform: uppercase; }
+        .dados-cliente label { font-weight: bold; color: #333; display: flex; flex-direction: column; flex: 1; }
+        .dados-cliente input { padding: 6px; border: 1px solid #aaa; border-radius: 4px; text-transform: uppercase; }
+
         .checklist { display: flex; flex-direction: column; gap: 15px; }
-        .checklist-item { display: flex; align-items: center; justify-content: space-between; }
+        .checklist-item { display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #eee; padding-bottom: 5px; }
         .checklist-item p { width: 40%; margin: 0; font-weight: bold; }
-        .checklist-item label { margin-right: 15px; }
+        .checklist-item label { margin-right: 15px; font-size: 14px; }
+        .observacao { padding: 4px; border: 1px solid #ccc; border-radius: 4px; width: 150px; }
+
         .signature { margin-top: 30px; }
-        .signature canvas { border: 1px solid #ccc; border-radius: 5px; width: 100%; height: 150px; cursor: crosshair; }
+        .signature canvas { border: 1px solid #ccc; border-radius: 5px; width: 100%; height: 150px; background-color: #fff; cursor: crosshair; touch-action: none; }
+        
+        /* Estilos da Foto */
+        .foto-container { margin-top: 20px; display: flex; align-items: center; gap: 20px; flex-wrap: wrap; }
+        #video { width: 150px; height: 150px; background: #eee; border-radius: 5px; object-fit: cover; }
+        #fotoCapturada { width: 150px; height: 150px; border: 1px solid #ccc; border-radius: 5px; }
+        
         .button-group { text-align: center; margin-top: 20px; }
-        button { background-color: #007bff; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; font-size: 16px; transition: background-color 0.3s ease; }
+        button { background-color: #007bff; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; font-size: 16px; transition: 0.3s; margin: 5px; }
         button:hover { background-color: #0056b3; }
-        a { display: inline-block; margin-top: 15px; text-decoration: none; color: #007bff; }
-        a:hover { text-decoration: underline; }
-        @media print { input { border: 1px solid #000 !important; } }
+
+        @media print {
+            .button-group, .btn-clear, a, .btn-foto, #video { display: none !important; }
+            input { border: 1px solid #000 !important; }
+        }
     </style>
 </head>
 <body>
 
-    <header>
-        <h1>Checklist de Processos Implantados Produtos</h1>
-    </header>
+    <header><h1>Checklist de Processos Implantados Produtos</h1></header>
 
     <div class="container">
         <h2>Checklist de Processos Produtos</h2>
@@ -50,9 +60,7 @@
             </div>
         </div>
 
-        <div class="checklist" id="areaChecklist">
-            <!-- JS vai gerar as perguntas aqui -->
-        </div>
+        <div class="checklist"></div>
 
         <div class="button-group">
             <button onclick="marcarTodas('sim')">Marcar Todas Sim</button>
@@ -62,124 +70,59 @@
 
         <div class="signature">
             <h3>Assinatura</h3>
-            <canvas id="signatureCanvas" width="860" height="150"></canvas>
-            <button type="button" onclick="limparAssinatura()" style="background-color: #dc3545; margin-top: 10px;">Limpar Assinatura</button>
+            <canvas id="signatureCanvas"></canvas>
+            <div style="text-align: right;">
+                <button class="btn-clear" style="background:#666; font-size:12px; padding:5px 10px;" onclick="limparAssinatura()">Limpar Assinatura</button>
+            </div>
+        </div>
+
+        <!-- Seção da Câmera -->
+        <div class="foto-container">
+            <div>
+                <video id="video" autoplay playsinline></video><br>
+                <button type="button" class="btn-foto" onclick="ligarCamera()">Ligar Câmera</button>
+                <button type="button" class="btn-foto" onclick="tirarFoto()">Capturar Foto</button>
+            </div>
+            <img id="fotoCapturada" alt="Foto capturada aparecerá aqui">
+            <canvas id="canvasFoto" width="300" height="300" style="display:none;"></canvas>
         </div>
 
         <div class="button-group">
             <button onclick="validarEImprimir()">Impressão Módulo Produtos</button>
             <br>
-            <a href="checklist1.html">Voltar para o Menu</a>
+            <a href="file:///C:\checklist\checklist1.html">Voltar para o MENU</a>
         </div>
     </div>
 
     <script>
-        // FORMATAÇÃO DO CNPJ
-        function formatarCNPJ(campo) {
-            let cnpj = campo.value.replace(/\D/g, "");
-            if (cnpj.length > 14) cnpj = cnpj.substring(0, 14);
-            campo.value = cnpj.replace(/^(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})$/, "$1.$2.$3/$4-$5");
-        }
+        const checklistItems = ["Cadastro de Pessoa", "Cadastro de Produtos", "Cadastro de NF de Entrada de Peças (*)", "Cadastro de NF de Entrada de Frete de Peças (* )", "Cadastro de NF de Entrada de Devolução de Venda (* )", "Cadastro de NF de Entrada Outras (* )", "Cadastro de NF de Saída Simples Remessa Peças (* )", "Cadastro de NF de Saída Simples Remessa Outros (* )", "Cadastro de NF de Saída Devolução de Compras (* )", "Nota Fiscal de Transferência Entre Filiais / Coligadas (* )", "Cancelar NF", "Requisição de Compra", "Fazer Pedido de Peças Através da Sugestão", "Fazer Pedido de Peças com Requisição de Compras", "Movimentação de Entradas e Saídas", "Manutenção de Vendas Perdidas", "Manutenção de Localização", "Manutenção de Preços dos Produtos", "Markup de Produtos", "Cadastro de Classificação ABC", "Inventário", "Consultar Estoque", "Consultar Peças em Trânsito", "Cancelar Requisição de Materiais", "Mudança de Referência", "Cadastro de Promoções", "Cadastro de Descontos", "Cadastro de Objetivos", "Exportação de Arquivos Montadora", "Importação de Arquivos Montadora", "Cadastrar Pedido de Venda", "Gerar / Imprimir Orçamento (* )", "Emitir / Reemitir Lista de Separação (* )", "Emitir Nota Fiscal de Venda Balcão (* )", "Emitir Nota Fiscal de Devolução de Venda Balcão (* )", "Emitir Cupom Fiscal (* )", "Cancelar Nota Fiscal de Venda Balcão", "Cancelar Cupom Fiscal de Venda Balcão", "Emitir Boleto de Cobrança (* )", "Informar Vendas Perdidas", "Requisição de Compra Automática", "Emitir nota fiscal baseada em Cupom (* )", "Indicadores", "Integração com a Fábrica - Importações", "Integração com a Fábrica - Exportações", "Relatórios", "FLUXO - Nota Fiscal de Entrada - Autorizar NF", "FLUXO - Nota Fiscal de Entrada - Informar Data Entrada", "FLUXO - Nota Fiscal de Entrada - Recebimento", "FLUXO - Nota Fiscal de Entrada - Conferencia de Cadastro Produto", "FLUXO - Nota Fiscal de Entrada - Autorizar NF Chassi", "FLUXO - Nota Fiscal de Entrada - Autorizar Fiscal", "FLUXO - Nota Fiscal de Entrada - Importar XML", "FLUXO - Pedido de Compra - Autorizar", "FLUXO - Pedido de Compra - Autorizar Orçamento", "FLUXO - Pedido de Compra - Prorrogar prazo de entrega", "FLUXO - Requisição de Compra - Autoriza", "FLUXO - Requisição de Compra - Cancela", "FLUXO - Requisição de Compra - Dar Ciência", "FLUXO - Requisição de Compra - Verificar Entrega", "FLUXO - Requisição de Compra - Desvincular", "FLUXO - Lista Separação - Receber Produto", "FLUXO - Lista Separação - Entregar produto", "FLUXO - Sugestão de Compra - Dar Ciência", "FLUXO - Autorizar Pedido Venda Produto - Autorizar", "FLUXO - Autorizar Pedido Venda Produto - Autorizar financeiro", "FLUXO - Recebimento de Requisição de Compra - Dar ciência", "FLUXO - Recebimento de Requisição de Compra - Comunicar Cliente", "FLUXO - Autorização de Movimento de Estoque Avulso - Autorizar", "FLUXO - Autorização de Movimento de Estoque Avulso - Dar Ciência", "FLUXO - Cálculo ABC de Popularidade - Dar Ciência", "FLUXO - Produto com Estoque Zerado - Analisar", "FLUXO - Análise Venda Perdida - Analisar venda perdido", "FLUXO - Inventário - Autorizar", "FLUXO - Inventário - Finalizar Inventário"];
 
-        // ITENS DO CHECKLIST
-        const checklistItems = [
-            "Cadastro de Pessoa", "Cadastro de Produtos", "Cadastro de NF de Entrada de Peças (*)",
-            "Cadastro de NF de Entrada de Frete de Peças (* )", "Cadastro de NF de Entrada de Devolução de Venda (* )",
-            "Cadastro de NF de Entrada Outras (* )", "Cadastro de NF de Saída Simples Remessa Peças (* )",
-            "Cadastro de NF de Saída Simples Remessa Outros (* )", "Cadastro de NF de Saída Devolução de Compras (* )",
-            "Nota Fiscal de Transferência Entre Filiais / Coligadas (* )", "Cancelar NF", "Requisição de Compra",
-            "Fazer Pedido de Peças Através da Sugestão", "Fazer Pedido de Peças com Requisição de Compras",
-            "Movimentação de Entradas e Saídas", "Manutenção de Vendas Perdidas", "Manutenção de Localização",
-            "Manutenção de Preços dos Produtos", "Markup de Produtos", "Cadastro de Classificação ABC", "Inventário",
-            "Consultar Estoque", "Consultar Peças em Trânsito", "Cancelar Requisição de Materiais", "Mudança de Referência",
-            "Cadastro de Promoções", "Cadastro de Descontos", "Cadastro de Objetivos", "Exportação de Arquivos Montadora",
-            "Importação de Arquivos Montadora", "Cadastrar Pedido de Venda", "Gerar / Imprimir Orçamento (* )",
-            "Emitir / Reemitir Lista de Separação (* )", "Emitir Nota Fiscal de Venda Balcão (* )",
-            "Emitir Nota Fiscal de Devolução de Venda Balcão (* )", "Emitir Cupom Fiscal (* )",
-            "Cancelar Nota Fiscal de Venda Balcão", "Cancelar Cupom Fiscal de Venda Balcão", "Emitir Boleto de Cobrança (* )",
-            "Informar Vendas Perdidas", "Requisição de Compra Automática", "Emitir nota fiscal baseada em Cupom (* )",
-            "Indicadores", "Integração com a Fábrica - Importações", "Integração com a Fábrica - Exportações", "Relatórios",
-            "FLUXO - Nota Fiscal de Entrada - Autorizar NF", "FLUXO - Nota Fiscal de Entrada - Informar Data Entrada",
-            "FLUXO - Nota Fiscal de Entrada - Recebimento", "FLUXO - Nota Fiscal de Entrada - Conferencia de Cadastro Produto",
-            "FLUXO - Nota Fiscal de Entrada - Autorizar NF Chassi", "FLUXO - Nota Fiscal de Entrada - Autorizar Fiscal",
-            "FLUXO - Nota Fiscal de Entrada - Importar XML", "FLUXO - Pedido de Compra - Autorizar",
-            "FLUXO - Pedido de Compra - Autorizar Orçamento", "FLUXO - Pedido de Compra - Prorrogar prazo de entrega",
-            "FLUXO - Requisição de Compra - Autoriza", "FLUXO - Requisição de Compra - Cancela",
-            "FLUXO - Requisição de Compra - Dar Ciência", "FLUXO - Requisição de Compra - Verificar Entrega",
-            "FLUXO - Requisição de Compra - Desvincular", "FLUXO - Lista Separação - Receber Produto",
-            "FLUXO - Lista Separação - Entregar produto", "FLUXO - Sugestão de Compra - Dar Ciência",
-            "FLUXO - Autorizar Pedido Venda Produto - Autorizar", "FLUXO - Autorizar Pedido Venda Produto - Autorizar financeiro",
-            "FLUXO - Recebimento de Requisição de Compra - Dar ciência", "FLUXO - Recebimento de Requisição de Compra - Comunicar Cliente",
-            "FLUXO - Autorização de Movimento de Estoque Avulso - Autorizar", "FLUXO - Autorização de Movimento de Estoque Avulso - Dar Ciência",
-            "FLUXO - Cálculo ABC de Popularidade - Dar Ciência", "FLUXO - Produto com Estoque Zerado - Analisar",
-            "FLUXO - Análise Venda Perdida - Analisar venda perdido", "FLUXO - Inventário - Autorizar", "FLUXO - Inventário - Finalizar Inventário"
-        ];
+        // Gera checklist
+        document.querySelector('.checklist').innerHTML = checklistItems.map(item => `
+            <div class="checklist-item">
+                <p>${item}</p>
+                <label><input type="radio" name="${item}" value="sim"> Sim</label>
+                <label><input type="radio" name="${item}" value="nao"> Não</label>
+                <label><input type="radio" name="${item}" value="naoSeAplica"> Não se aplica</label>
+                <input type="text" class="observacao" placeholder="Observação">
+            </div>
+        `).join('');
 
-        function generateChecklistItems() {
-            return checklistItems.map(item => `
-                <div class="checklist-item">
-                    <p>${item}</p>
-                    <label><input type="radio" name="${item}" value="sim"> Sim</label>
-                    <label><input type="radio" name="${item}" value="nao"> Não</label>
-                    <label><input type="radio" name="${item}" value="naoSeAplica"> Não se aplica</label>
-                    <input type="text" class="observacao" name="observacao_${item}" placeholder="Observação">
-                </div>
-            `).join('');
-        }
+        // Funções Câmera
+        async function ligarCamera() { try { const stream = await navigator.mediaDevices.getUserMedia({ video: true }); document.getElementById('video').srcObject = stream; } catch(err) { alert("Erro ao acessar câmera: " + err); } }
+        function tirarFoto() { const v = document.getElementById('video'); const c = document.getElementById('canvasFoto'); const ctx = c.getContext('2d'); ctx.drawImage(v, 0, 0, 300, 300); document.getElementById('fotoCapturada').src = c.toDataURL('image/png'); }
 
-        // RENDERIZA O CHECKLIST NA TELA
-        document.getElementById('areaChecklist').innerHTML = generateChecklistItems();
-
-        // FUNÇÕES DOS BOTÕES DE MARCAR TODAS E IMPRIMIR
-        function marcarTodas(valor) {
-            checklistItems.forEach(item => {
-                const radios = document.getElementsByName(item);
-                radios.forEach(radio => radio.checked = radio.value === valor);
-            });
-        }
-
-        function validarEImprimir() {
-            const allAnswered = checklistItems.every(item => {
-                const radios = document.getElementsByName(item);
-                return Array.from(radios).some(radio => radio.checked);
-            });
-            if (allAnswered) {
-                window.print();
-            } else {
-                alert('Por favor, responda todas as perguntas antes de imprimir.');
-            }
-        }
-
-        // --- LÓGICA DA ASSINATURA ---
-        const canvas = document.getElementById('signatureCanvas');
-        const ctx = canvas.getContext('2d');
-        let desenhando = false;
-
-        ctx.strokeStyle = '#000';
-        ctx.lineWidth = 2;
-        ctx.lineJoin = 'round';
-
-        function getPos(e) {
-            const rect = canvas.getBoundingClientRect();
-            const clientX = e.clientX || (e.touches ? e.touches[0].clientX : 0);
-            const clientY = e.clientY || (e.touches ? e.touches[0].clientY : 0);
-            return { x: clientX - rect.left, y: clientY - rect.top };
-        }
-
-        canvas.addEventListener('mousedown', (e) => { desenhando = true; ctx.beginPath(); ctx.moveTo(getPos(e).x, getPos(e).y); });
-        canvas.addEventListener('mousemove', (e) => { if (desenhando) { ctx.lineTo(getPos(e).x, getPos(e).y); ctx.stroke(); } });
-        canvas.addEventListener('mouseup', () => desenhando = false);
-        canvas.addEventListener('mouseleave', () => desenhando = false);
-
-        // Mobile
-        canvas.addEventListener('touchstart', (e) => { e.preventDefault(); desenhando = true; ctx.beginPath(); ctx.moveTo(getPos(e).x, getPos(e).y); }, {passive: false});
-        canvas.addEventListener('touchmove', (e) => { e.preventDefault(); if (desenhando) { ctx.lineTo(getPos(e).x, getPos(e).y); ctx.stroke(); } }, {passive: false});
-        canvas.addEventListener('touchend', () => desenhando = false);
-
-        function limparAssinatura() {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-        }
+        // Lógica de Assinatura e Utilitários
+        const canvas = document.getElementById('signatureCanvas'); const ctx = canvas.getContext('2d'); let desenhando = false;
+        function ajustarCanvas() { canvas.width = canvas.offsetWidth; canvas.height = canvas.offsetHeight; }
+        window.onload = ajustarCanvas;
+        canvas.addEventListener('mousedown', (e) => { desenhando=true; ctx.beginPath(); ctx.moveTo(e.offsetX, e.offsetY); });
+        canvas.addEventListener('mousemove', (e) => { if(desenhando){ ctx.lineTo(e.offsetX, e.offsetY); ctx.stroke(); } });
+        canvas.addEventListener('mouseup', () => desenhando=false);
+        function limparAssinatura() { ctx.clearRect(0, 0, canvas.width, canvas.height); }
+        function formatarCNPJ(c) { c.value = c.value.replace(/\D/g, "").replace(/^(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})$/, "$1.$2.$3/$4-$5"); }
+        function marcarTodas(valor) { document.querySelectorAll('input[type="radio"]').forEach(r => { if(r.value === valor) r.checked = true; }); }
+        function validarEImprimir() { window.print(); }
     </script>
 </body>
 </html>
-
